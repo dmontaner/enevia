@@ -57,11 +57,11 @@ def create_batch_files(file, cuts, output_tag):
     writer.write(open(output_file, 'wb'))
 
 
-def cuts_from_comas(cuts):
+def cuts_from_comas(coma_cuts):
     '''
     cuts: string of coma separated page numbers (1 based).
     '''
-    cuts = cuts.strip(',').split(',')
+    cuts = coma_cuts.strip(',').split(',')
     cuts = [int(x) - 1 for x in cuts]
     cuts.append(0)
     cuts = sorted(list(set(cuts)))
@@ -87,6 +87,22 @@ def cuts_from_every(every, n_pages):
     '''
     cuts = list(range(0, n_pages, every))
     cuts = {x: (str(x + 1),) for x in cuts}
+    return cuts
+
+
+def process_cuts(coma_cuts, batches, every, n_pages, is_teletest, teletest_cuts):
+    if coma_cuts:
+        cuts = cuts_from_comas(coma_cuts)
+    elif batches:
+        cuts = cuts_from_batches(batches, n_pages)
+    elif every:
+        cuts = cuts_from_every(every, n_pages)
+    elif is_teletest and 0 < len(teletest_cuts):
+        print('\nTeletest file detected.\n')
+        cuts = teletest_cuts
+    else:
+        print('\nTeletest data not detected.\nOne of this parameters is then required: `--cuts`, `--batches` or `--every`\nSee option -h for HELP`\n')
+        raise Exception
     return cuts
 
 
@@ -120,18 +136,7 @@ if __name__ == '__main__':
         print(f'\nFile `{input_file}` seems to be empty.\n')
         raise Exception
 
-    if args.cuts:
-        cuts = cuts_from_comas(args.cuts)
-    elif args.batches:
-        cuts = cuts_from_batches(args.batches, n_pages)
-    elif args.every:
-        cuts = cuts_from_every(args.every, n_pages)
-    elif is_teletest and 0 < len(teletest_cuts):
-        print('\nTeletest file detected.\n')
-        cuts = teletest_cuts
-    else:
-        print('\nTeletest data not detected.\nOne of this parameters is then required: `--cuts`, `--batches` or `--every`\nSee option -h for HELP`\n')
-        raise Exception
+    cuts = process_cuts(args.cuts, args.batches, args.every, n_pages, is_teletest, teletest_cuts)
 
     if args.output:
         output_tag = args.output

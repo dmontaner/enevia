@@ -74,6 +74,9 @@ def cuts_from_batches(batches, n_pages):
     batches: number of batches to be done.
     n_pages: number of pages in the document.
     '''
+    batches = int(batches)
+    n_pages = int(n_pages)
+
     step = math.ceil(n_pages / batches)
     cuts = list(range(0, n_pages, step))
     cuts = {x: (str(x + 1),) for x in cuts}
@@ -85,6 +88,9 @@ def cuts_from_every(every, n_pages):
     every  : number of pages in each batch document.
     n_pages: number of pages in the document.
     '''
+    every = int(every)
+    n_pages = int(n_pages)
+
     cuts = list(range(0, n_pages, every))
     cuts = {x: (str(x + 1),) for x in cuts}
     return cuts

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Enevia Tools
+Comment=Enevia Tools for Ubuntu
+Version=0.0.1
+Type=Application
+Exec=splitpdf -g %U
+Icon=enevia_logo
+Terminal=false
+MimeType=application/pdf

@@ -98,7 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--cuts'   , type=str, help='Collection of comma separated page cuts where new batches should start. Ej: 1,5,12')
     parser.add_argument('-b', '--batches', type=int, help='Number batches to be created.')
     parser.add_argument('-e', '--every'  , type=int, help='Number of pages for each batch.')
-    parser.add_argument('-o', '--output' , type=str, help='output file tag')
+    parser.add_argument('-o', '--output' , type=str, help='Output file tag')
     parser.add_argument('file', help='PDF file you want to extract.', nargs=1)
     args = parser.parse_args()
 

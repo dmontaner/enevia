@@ -2,6 +2,7 @@
 # 2021-06-26 david.montaner@gmail.com
 # split pdf for Enevia
 
+import os
 import math
 import argparse
 import pdflib
@@ -124,6 +125,7 @@ def process_cuts(coma_cuts, batches, every, n_pages, is_teletest, teletest_cuts)
 
 
 def enevia_gui(
+        file='',
         title='Enevia PDF Extractor',
         width=2000,
         height=1000,
@@ -131,8 +133,7 @@ def enevia_gui(
         normal_font=('calibre', 10, 'normal'),
 ):
 
-    def open_pdf_file():
-        input_file = tkinter.filedialog.askopenfilename(filetypes=[('PDF files', '.pdf .Pdf .pDf .pdF .PDf .PdF .pDF .PDF')])
+    def _open_pdf_file(input_file):
         print('Pre-rocessing file:', input_file, sep='\n')
 
         input_file_tkvar.set(input_file)
@@ -150,6 +151,10 @@ def enevia_gui(
 
         global teletest_cuts
         teletest_cuts = tt_cuts
+
+    def open_pdf_file():
+        input_file = tkinter.filedialog.askopenfilename(filetypes=[('PDF files', '.pdf .Pdf .pDf .pdF .PDf .PdF .pDF .PDF')])
+        _open_pdf_file(input_file)
 
     def process_pdf_file():
 
@@ -190,7 +195,6 @@ def enevia_gui(
     frame_A = tk.Frame(root, width=width, height=height * 0.4, padx=100)
     frame_B = tk.Frame(root, width=width, height=height * 0.4, padx=100)
 
-    input_file_tkvar = tk.StringVar(value='')
     teletest_cuts = {}
 
     # ELEMENTS
@@ -227,6 +231,7 @@ def enevia_gui(
     teletest_notes = tk.Label(frame_A, font=normal_font, text='Indicates if the file is from Teletest')
     teletest_entrY = tk.Label(frame_A, font=normal_font, textvariable=teletest_tkvar)  # ToDo: see why boolean does not work well here
 
+    input_file_tkvar = tk.StringVar(value=file)
     file_button_tkvar = tk.Button(frame_B, font=strong_font, text='Select File', command=open_pdf_file)
     file_button_entry = tk.Entry(frame_B, font=normal_font, textvariable=input_file_tkvar, width=150)
 
@@ -236,6 +241,9 @@ def enevia_gui(
 
     msg_tkvar = tk.StringVar(value='')
     msg_labeL = tk.Message(root, textvariable=msg_tkvar)
+
+    if file:
+        _open_pdf_file(file)
 
     # LAYOUT
     frame_T.pack()
@@ -321,7 +329,10 @@ if __name__ == '__main__':
     print(args)
 
     if args.gui:
-        enevia_gui()
+        if args.file:
+            enevia_gui(file=os.path.realpath(args.file[0]))
+        else:
+            enevia_gui()
 
     else:
         input_file = args.file[0]

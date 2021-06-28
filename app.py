@@ -7,9 +7,12 @@
 import os
 import tkinter as tk
 import tkinter.filedialog
+import tkinter.ttk
 
 import splitpdf
 
+width = 2000
+height = 1000
 title = 'Enevia PDF Extractor'
 strong_font = ('calibre', 10, 'bold')
 normal_font = ('calibre', 10, 'normal')
@@ -56,78 +59,90 @@ def process_pdf_file():
 
 root = tk.Tk()
 root.title(title)
-root.geometry("2000x1000")
+root.geometry(f'{width}x{height}')
 
-input_file_tkvar = tk.StringVar(root, value='empezamos')
+frame_T = tk.Frame(root, width=width, height=height * 0.1, padx=10)
+frame_A = tk.Frame(root, width=width, height=height * 0.4, padx=100)
+frame_B = tk.Frame(root, width=width, height=height * 0.4, padx=100)
+
+input_file_tkvar = tk.StringVar(value='')
 teletest_cuts = {}
 
 # ELEMENTS
-title_label = tk.Label(root, text=title, font=('calibre', 20, 'bold'))
+title_label = tk.Label(frame_T, text=title, font=('calibre', 20, 'bold'))
 
 cuts_tkvar = tk.StringVar(value='')
-cuts_label = tk.Label(root, font=strong_font, text='Cuts')
-cuts_notes = tk.Label(root, font=normal_font, text='Collection of comma separated page cuts where new batches should start. Ej: 1,5,12')
-cuts_entry = tk.Entry(root, font=normal_font, textvariable=cuts_tkvar)
+cuts_label = tk.Label(frame_A, font=strong_font, text='Cuts')
+cuts_notes = tk.Label(frame_A, font=normal_font, text='Collection of comma separated page cuts where new batches should start. Ej: 1,5,12')
+cuts_entry = tk.Entry(frame_A, font=normal_font, textvariable=cuts_tkvar)
 
 batches_tkvar = tk.StringVar(value='')
-batches_label = tk.Label(root, font=strong_font, text='Batches')
-batches_notes = tk.Label(root, font=normal_font, text='Number batches to be created.')
-batches_entry = tk.Entry(root, font=normal_font, textvariable=batches_tkvar)
+batches_label = tk.Label(frame_A, font=strong_font, text='Batches')
+batches_notes = tk.Label(frame_A, font=normal_font, text='Number batches to be created.')
+batches_entry = tk.Entry(frame_A, font=normal_font, textvariable=batches_tkvar)
 
 every_tkvar = tk.StringVar(value='')
-every_label = tk.Label(root, font=strong_font, text='Every')
-every_notes = tk.Label(root, font=normal_font, text='Number of pages for each batch.')
-every_entry = tk.Entry(root, font=normal_font, textvariable=every_tkvar)
+every_label = tk.Label(frame_A, font=strong_font, text='Every')
+every_notes = tk.Label(frame_A, font=normal_font, text='Number of pages for each batch.')
+every_entry = tk.Entry(frame_A, font=normal_font, textvariable=every_tkvar)
 
 output_tkvar = tk.StringVar(value='')
-output_label = tk.Label(root, font=strong_font, text='Output')
-output_notes = tk.Label(root, font=normal_font, text='Output file tag.')
-output_entry = tk.Entry(root, font=normal_font, textvariable=output_tkvar)
+output_label = tk.Label(frame_A, font=strong_font, text='Output')
+output_notes = tk.Label(frame_A, font=normal_font, text='Output file tag.')
+output_entry = tk.Entry(frame_A, font=normal_font, textvariable=output_tkvar, width=150)  # allow for 100 characters in the box
 # hacer output dir aqui
 
-file_button_tkvar = tk.Button(root, text='Select PDF File', command=open_pdf_file)
-file_button_entry = tk.Entry(root, font=normal_font, textvariable=input_file_tkvar)
+npages_tkvar = tk.IntVar(frame_A, value=0)
+npages_label = tk.Label(frame_A, font=strong_font, text='N. pages')
+npages_notes = tk.Label(frame_A, font=normal_font, text='Number of pages in the selected file.')
+npages_entrY = tk.Label(frame_A, font=normal_font, textvariable=npages_tkvar)
 
-npages_tkvar = tk.IntVar(root, value=0)
-npages_label = tk.Label(root, font=strong_font, text='N. pages')
-npages_notes = tk.Label(root, font=normal_font, text='Number of pages in the selected file.')
-npages_entrY = tk.Label(root, font=normal_font, textvariable=npages_tkvar)
+teletest_tkvar = tk.StringVar(frame_A, value='False')  # tk.BooleanVar(root, value=False)  # ToDo: see why boolean does not work below
+teletest_label = tk.Label(frame_A, font=strong_font, text='Is Teletest')
+teletest_notes = tk.Label(frame_A, font=normal_font, text='Indicates if the file is from Teletest')
+teletest_entrY = tk.Label(frame_A, font=normal_font, textvariable=teletest_tkvar)  # ToDo: see why boolean does not work well here
 
-teletest_tkvar = tk.StringVar(root, value='False')  # tk.BooleanVar(root, value=False)  # ToDo: see why boolean does not work below
-teletest_label = tk.Label(root, font=strong_font, text='Is Teletest')
-teletest_notes = tk.Label(root, font=normal_font, text='Indicates if the file is from Teletest')
-teletest_entrY = tk.Label(root, font=normal_font, textvariable=teletest_tkvar)  # ToDo: see why boolean does not work well here
+file_button_tkvar = tk.Button(frame_B, font=strong_font, text='Select File', command=open_pdf_file)
+file_button_entry = tk.Entry(frame_B, font=normal_font, textvariable=input_file_tkvar, width=150)
 
-submit_button_tkvar = tk.Button(root, text='Submit', command=process_pdf_file)
+submit_button_tkvar = tk.Button(frame_B, font=strong_font, text='Submit', command=process_pdf_file)
 
 
 # LAYOUT
+# frame_T.grid(row=0, sticky="ew")
+
+frame_T.pack()
 r = 0
 title_label.grid(row=r, column=1, columnspan=3, sticky='W')
-
 r += 1
+tkinter.ttk.Separator(frame_T, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
+
+# frame_A.grid(row=1, sticky="ew")
+frame_A.pack()
+
+r = 0
+
 cuts_label.grid(row=r, column=0, sticky='E')
-cuts_entry.grid(row=r, column=1)
+cuts_entry.grid(row=r, column=1, sticky='W')
 cuts_notes.grid(row=r, column=2, sticky='W')
 
 r += 1
 batches_label.grid(row=r, column=0, sticky='E')
-batches_entry.grid(row=r, column=1)
+batches_entry.grid(row=r, column=1, sticky='W')
 batches_notes.grid(row=r, column=2, sticky='W')
 
 r += 1
 every_label.grid(row=r, column=0, sticky='E')
-every_entry.grid(row=r, column=1)
+every_entry.grid(row=r, column=1, sticky='W')
 every_notes.grid(row=r, column=2, sticky='W')
 
 r += 1
 output_label.grid(row=r, column=0, sticky='E')
-output_entry.grid(row=r, column=1)
-output_notes.grid(row=r, column=2, sticky='W')
+output_entry.grid(row=r, column=1, columnspan=5)
+output_notes.grid(row=r, column=4, sticky='W')
 
 r += 1
-file_button_tkvar.grid(row=r, column=0)
-file_button_entry.grid(row=r, column=1, columnspan=3, sticky='W')
+tkinter.ttk.Separator(frame_A, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
 
 r += 1
 npages_label.grid(row=r, column=0, sticky='E')
@@ -140,7 +155,20 @@ teletest_entrY.grid(row=r, column=1)
 teletest_notes.grid(row=r, column=2, sticky='W')
 
 r += 1
-submit_button_tkvar.grid(row=r, column=1)
+tkinter.ttk.Separator(frame_A, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
+
+
+# frame_B.grid(row=2, sticky="ew")
+frame_B.pack()
+r = 0
+file_button_tkvar.grid(row=r, column=0, sticky='W')
+file_button_entry.grid(row=r, column=1, columnspan=3, sticky='W')
+
+r += 1
+tkinter.ttk.Separator(frame_B, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
+
+r += 1
+submit_button_tkvar.grid(row=r, column=1, sticky='W')
 
 root.mainloop()
 # quit()

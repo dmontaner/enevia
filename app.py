@@ -1,67 +1,146 @@
-# https://github.com/JackFlexington/PDFextract_text/
+# splitpdf.py
+# 2021-06-28 david.montaner@gmail.com
+# split pdf for Enevia APP
 
-import PyPDF2
-from PIL import Image, ImageTk
+# https://www.tutorialspoint.com/python/tk_anchors.htm
+
+import os
 import tkinter as tk
-from tkinter.filedialog import askopenfile
-from tkinter import messagebox
+import tkinter.filedialog
+
+import splitpdf
+
+title = 'Enevia PDF Extractor'
+strong_font = ('calibre', 10, 'bold')
+normal_font = ('calibre', 10, 'normal')
+
+
+def open_pdf_file():
+    input_file = tkinter.filedialog.askopenfilename(filetypes=[('PDF files', '.pdf .Pdf .pDf .pdF .PDf .PdF .pDF .PDF')])
+    print('Pre-rocessing file:', input_file, sep='\n')
+
+    input_file_tkvar.set(input_file)
+
+    if not output_tkvar.get():
+        output_tkvar.set(input_file[:-4])
+
+    n_pages, is_teletest, _, tt_cuts = splitpdf.read_teletest_info(input_file)
+
+    print('n_pages:', n_pages)
+    print('is_teletest:', is_teletest)
+
+    npages_tkvar.set(n_pages)
+    teletest_tkvar.set(str(is_teletest))
+
+    global teletest_cuts
+    teletest_cuts = tt_cuts
+
+
+def process_pdf_file():
+
+    global teletest_cuts
+
+    cuts = splitpdf.process_cuts(
+        coma_cuts=cuts_tkvar.get(),
+        batches=batches_tkvar.get(),
+        every=every_tkvar.get(),
+        n_pages=npages_tkvar.get(),
+        is_teletest=teletest_tkvar.get() == 'True',
+        teletest_cuts=teletest_cuts)
+
+    splitpdf.create_batch_files(
+        file=input_file_tkvar.get(),
+        cuts=cuts,
+        output_tag=output_tkvar.get())
+
 
 root = tk.Tk()
-root.title("PDF Extract Text")
-root.resizable(False, False)
+root.title(title)
+root.geometry("2000x1000")
 
-N = 2
+input_file_tkvar = tk.StringVar(root, value='empezamos')
+teletest_cuts = {}
 
-canvas = tk.Canvas(root, width=600 * N, height=300 * N)
-canvas.grid(columnspan=3, rowspan=3)
+# ELEMENTS
+title_label = tk.Label(root, text=title, font=('calibre', 20, 'bold'))
 
-# logo
-logo = Image.open('logo.png')
-logo = ImageTk.PhotoImage(logo)
-logo_label = tk.Label(image=logo)
-logo_label.image = logo
-logo_label.grid(column=1, row=0)
+cuts_tkvar = tk.StringVar(value='')
+cuts_label = tk.Label(root, font=strong_font, text='Cuts')
+cuts_notes = tk.Label(root, font=normal_font, text='Collection of comma separated page cuts where new batches should start. Ej: 1,5,12')
+cuts_entry = tk.Entry(root, font=normal_font, textvariable=cuts_tkvar)
 
-# instructions
-instructions = tk.Label(root, text="Select a PDF file on your computer to extract all its text", font="Raleway")
-instructions.grid(columnspan=3, column=0, row=1)
+batches_tkvar = tk.StringVar(value='')
+batches_label = tk.Label(root, font=strong_font, text='Batches')
+batches_notes = tk.Label(root, font=normal_font, text='Number batches to be created.')
+batches_entry = tk.Entry(root, font=normal_font, textvariable=batches_tkvar)
+
+every_tkvar = tk.StringVar(value='')
+every_label = tk.Label(root, font=strong_font, text='Every')
+every_notes = tk.Label(root, font=normal_font, text='Number of pages for each batch.')
+every_entry = tk.Entry(root, font=normal_font, textvariable=every_tkvar)
+
+output_tkvar = tk.StringVar(value='')
+output_label = tk.Label(root, font=strong_font, text='Output')
+output_notes = tk.Label(root, font=normal_font, text='Output file tag.')
+output_entry = tk.Entry(root, font=normal_font, textvariable=output_tkvar)
+# hacer output dir aqui
+
+file_button_tkvar = tk.Button(root, text='Select PDF File', command=open_pdf_file)
+file_button_entry = tk.Entry(root, font=normal_font, textvariable=input_file_tkvar)
+
+npages_tkvar = tk.IntVar(root, value=0)
+npages_label = tk.Label(root, font=strong_font, text='N. pages')
+npages_notes = tk.Label(root, font=normal_font, text='Number of pages in the selected file.')
+npages_entrY = tk.Label(root, font=normal_font, textvariable=npages_tkvar)
+
+teletest_tkvar = tk.StringVar(root, value='False')  # tk.BooleanVar(root, value=False)  # ToDo: see why boolean does not work below
+teletest_label = tk.Label(root, font=strong_font, text='Is Teletest')
+teletest_notes = tk.Label(root, font=normal_font, text='Indicates if the file is from Teletest')
+teletest_entrY = tk.Label(root, font=normal_font, textvariable=teletest_tkvar)  # ToDo: see why boolean does not work well here
+
+submit_button_tkvar = tk.Button(root, text='Submit', command=process_pdf_file)
 
 
-def open_file():
-    browse_text.set("loading...")
-    file = askopenfile(parent=root, mode='rb', title="Choose a file")  # , filetype=[("Pdf file", "*.pdf")])
-    if file:
-        read_pdf = PyPDF2.PdfFileReader(file)
-        page = read_pdf.getPage(0)
-        page_content = page.extractText()
+# LAYOUT
+r = 0
+title_label.grid(row=r, column=1, columnspan=3, sticky='W')
 
-        # text box
-        text_box = tk.Text(root, height=10, width=50, padx=15, pady=15)
-        text_box.insert(1.0, page_content)
-        text_box.tag_configure("center", justify="center")
-        text_box.tag_add("center", 1.0, "end")
-        text_box.grid(column=1, row=3)
+r += 1
+cuts_label.grid(row=r, column=0, sticky='E')
+cuts_entry.grid(row=r, column=1)
+cuts_notes.grid(row=r, column=2, sticky='W')
 
-        browse_text.set("Browse")
+r += 1
+batches_label.grid(row=r, column=0, sticky='E')
+batches_entry.grid(row=r, column=1)
+batches_notes.grid(row=r, column=2, sticky='W')
 
+r += 1
+every_label.grid(row=r, column=0, sticky='E')
+every_entry.grid(row=r, column=1)
+every_notes.grid(row=r, column=2, sticky='W')
 
-# function for event
-def on_closing():
-    if messagebox.askyesno("PDF Extract Text", "ಡ ﹏ ಡ\nDo you really want to go...?"):
-        root.destroy()
+r += 1
+output_label.grid(row=r, column=0, sticky='E')
+output_entry.grid(row=r, column=1)
+output_notes.grid(row=r, column=2, sticky='W')
 
+r += 1
+file_button_tkvar.grid(row=r, column=0)
+file_button_entry.grid(row=r, column=1, columnspan=3, sticky='W')
 
-# browse button
-browse_text = tk.StringVar()
-browse_btn = tk.Button(root, textvariable=browse_text, command=lambda: open_file(), font="Raleway", bg="#20bebe", fg="white", height=2, width=15)
-browse_text.set("Browse")
-browse_btn.grid(column=1, row=2)
+r += 1
+npages_label.grid(row=r, column=0, sticky='E')
+npages_entrY.grid(row=r, column=1)
+npages_notes.grid(row=r, column=2, sticky='W')
 
-canvas = tk.Canvas(root, width=600 * N, height=250 * N)
-canvas.grid(columnspan=3)
+r += 1
+teletest_label.grid(row=r, column=0, sticky='E')
+teletest_entrY.grid(row=r, column=1)
+teletest_notes.grid(row=r, column=2, sticky='W')
 
-# window manager delete window event
-root.protocol("WM_DELETE_WINDOW", on_closing)
+r += 1
+submit_button_tkvar.grid(row=r, column=1)
 
-# main program
 root.mainloop()
+# quit()

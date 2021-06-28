@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.8
 # splitpdf.py
 # 2021-06-26 david.montaner@gmail.com
 # split pdf for Enevia

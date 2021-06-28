@@ -51,10 +51,28 @@ def process_pdf_file():
         is_teletest=teletest_tkvar.get() == 'True',
         teletest_cuts=teletest_cuts)
 
-    splitpdf.create_batch_files(
+    msgs = splitpdf.create_batch_files(
         file=input_file_tkvar.get(),
         cuts=cuts,
         output_tag=output_tkvar.get())
+
+    print(msgs)
+
+    msg_tkvar.set('\n'.join(msgs))
+
+
+def reset_form():
+    global teletest_cuts
+    teletest_cuts = {}
+
+    input_file_tkvar.set('')
+    cuts_tkvar.set('')
+    batches_tkvar.set('')
+    output_tkvar.set('')
+    npages_tkvar.set(0)
+    teletest_tkvar.set('False')
+    msg_tkvar.set('')
+
 
 
 root = tk.Tk()
@@ -107,21 +125,23 @@ file_button_entry = tk.Entry(frame_B, font=normal_font, textvariable=input_file_
 
 submit_button_tkvar = tk.Button(frame_B, font=strong_font, text='Submit', command=process_pdf_file)
 
+reset_button_tkvar = tk.Button(frame_B, font=normal_font, text='Reset form', command=reset_form)
+
+msg_tkvar = tk.StringVar(value='')
+msg_labeL = tk.Message(root, textvariable=msg_tkvar)
+
 
 # LAYOUT
-# frame_T.grid(row=0, sticky="ew")
-
 frame_T.pack()
+
 r = 0
 title_label.grid(row=r, column=1, columnspan=3, sticky='W')
 r += 1
 tkinter.ttk.Separator(frame_T, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
 
-# frame_A.grid(row=1, sticky="ew")
 frame_A.pack()
 
 r = 0
-
 cuts_label.grid(row=r, column=0, sticky='E')
 cuts_entry.grid(row=r, column=1, sticky='W')
 cuts_notes.grid(row=r, column=2, sticky='W')
@@ -157,9 +177,8 @@ teletest_notes.grid(row=r, column=2, sticky='W')
 r += 1
 tkinter.ttk.Separator(frame_A, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
 
-
-# frame_B.grid(row=2, sticky="ew")
 frame_B.pack()
+
 r = 0
 file_button_tkvar.grid(row=r, column=0, sticky='W')
 file_button_entry.grid(row=r, column=1, columnspan=3, sticky='W')
@@ -169,6 +188,12 @@ tkinter.ttk.Separator(frame_B, orient='horizontal').grid(row=r, column=0, rowspa
 
 r += 1
 submit_button_tkvar.grid(row=r, column=1, sticky='W')
+reset_button_tkvar.grid(row=r, column=1, sticky='E')
+
+r += 1
+tkinter.ttk.Separator(frame_A, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=50)
+
+msg_labeL.pack()
 
 root.mainloop()
 # quit()

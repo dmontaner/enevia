@@ -7,6 +7,8 @@ import argparse
 import pdflib
 import PyPDF2
 
+version = '0.0.1'
+
 
 def read_teletest_info(file):
     doc = pdflib.Document(file)
@@ -93,7 +95,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
     Split PDF tool:
     ''')
-    parser.add_argument('-v', '--version', action='version', version='0.0.1')
+    parser.add_argument('-v', '--version', action='version', version=version)
     # parser.add_argument('-t', '--no-teletest', help='Do not attempt to parse Teletest data', action='store_true')
     parser.add_argument('-c', '--cuts'   , type=str, help='Collection of comma separated page cuts where new batches should start. Ej: 1,5,12')
     parser.add_argument('-b', '--batches', type=int, help='Number batches to be created.')

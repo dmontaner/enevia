@@ -211,7 +211,8 @@ def enevia_gui(
     teletest_cuts = {}
 
     # ELEMENTS
-    title_label = tk.Label(frame_T, text=title, font=('calibre', 20, 'bold'))
+    title_label   = tk.Label(frame_T, text=title, font=('calibre', 20, 'bold'))
+    version_label = tk.Label(frame_T, text=f'(Version {version})', font=('calibre', 10, 'bold'))
 
     notes_label = tk.Label(frame_A, text='The Cuts, Batches or Every boxes are not required if you are loading a Teletest file.')
 
@@ -265,6 +266,8 @@ def enevia_gui(
 
     r = 0
     title_label.grid(row=r, column=1, columnspan=3, sticky='W')
+    r += 1
+    version_label.grid(row=r, column=1, columnspan=3, sticky='EW')
     r += 1
     tkinter.ttk.Separator(frame_T, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
 

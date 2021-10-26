@@ -12,7 +12,7 @@ import tkinter as tk
 import tkinter.filedialog
 import tkinter.ttk
 
-version = '0.0.1'
+version = '0.0.2'
 
 
 def read_teletest_info(file):
@@ -22,16 +22,28 @@ def read_teletest_info(file):
     page_data = []
     if is_teletest:
         for page in doc:
+
+            if page.lines:
+                kit_name = page.lines[0].replace('/', '_')  # because this goes to the file name and will break the path
+            else:
+                kit_name = None
+
+            ref_lines = [x for x in page.lines if x.startswith('Ref:')]
+            if ref_lines:
+                ref_code = ref_lines[0].replace(': ', '_')
+            else:
+                ref_code = None
+
             page_data.append({
                 'page_no': page.page_no,
-                'line_0' : page.lines[0],
-                'line_3' : page.lines[3],
+                'kit_name' : kit_name,
+                'ref_code' : ref_code,
                 'ref_lines': [x for x in page.lines if x.startswith('Ref:')]
             })
         cuts = {i: (
             str(x['page_no']),
-            x['line_3'].replace(': ', '_'),
-            x['line_0']
+            x['ref_code'],
+            x['kit_name'],
         ) for i, x in enumerate(page_data) if 0 < len(x['ref_lines'])}
     else:
         cuts = {}
@@ -327,7 +339,7 @@ if __name__ == '__main__':
     parser.add_argument('file', help='PDF file you want to extract.', nargs='*')
     args = parser.parse_args()
 
-    print(args)
+    print(args, flush=True)
 
     if args.gui:
         if args.file:
@@ -351,6 +363,7 @@ if __name__ == '__main__':
             raise Exception
 
         cuts = process_cuts(args.cuts, args.batches, args.every, n_pages, is_teletest, teletest_cuts)
+        print(cuts)
 
         if args.output:
             output_tag = args.output

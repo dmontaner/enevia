@@ -213,6 +213,8 @@ def enevia_gui(
     # ELEMENTS
     title_label = tk.Label(frame_T, text=title, font=('calibre', 20, 'bold'))
 
+    notes_label = tk.Label(frame_A, text='The Cuts, Batches or Every boxes are not required if you are loading a Teletest file.')
+
     cuts_tkvar = tk.StringVar(value='')
     cuts_label = tk.Label(frame_A, font=strong_font, text='Cuts')
     cuts_notes = tk.Label(frame_A, font=normal_font, text='Collection of comma separated page cuts where new batches should start. Ej: 1,5,12')
@@ -269,6 +271,11 @@ def enevia_gui(
     frame_A.pack()
 
     r = 0
+    notes_label.grid(row=r, column=0, columnspan=3, sticky='W')
+    r += 1
+    tkinter.ttk.Separator(frame_A, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
+
+    r += 1
     cuts_label.grid(row=r, column=0, sticky='E')
     cuts_entry.grid(row=r, column=1, sticky='W')
     cuts_notes.grid(row=r, column=2, sticky='W')
@@ -282,6 +289,9 @@ def enevia_gui(
     every_label.grid(row=r, column=0, sticky='E')
     every_entry.grid(row=r, column=1, sticky='W')
     every_notes.grid(row=r, column=2, sticky='W')
+
+    r += 1
+    tkinter.ttk.Separator(frame_A, orient='horizontal').grid(row=r, column=0, rowspan=1, ipady=10)
 
     r += 1
     output_label.grid(row=r, column=0, sticky='E')
